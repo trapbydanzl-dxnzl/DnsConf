@@ -39,25 +39,14 @@ public class EnvParser {
             throw UserInputException.noStackTrace("DNS values amount must be equal to CLIENT_ID values amount or contain exactly one provider");
         }
 
-        List<String> mutableDonorList = new ArrayList<>(donorList);
-mutableDonorList.replaceAll(val -> "-".equals(val) ? null : val);
-donorList = mutableDonorList;
-
-// Защита от пустого списка (чтобы не было IndexOutOfBoundsException)
-if (donorList.isEmpty()) {
-    throw UserInputException.noStackTrace("DONOR_DNS values cannot be empty. Check your environment variables.");
-}
-
-if (donorList.size() == 1) {
-    String[] donorFiller = new String[profilesAmount];
-    Arrays.fill(donorFiller, donorList.getFirst());
-    // ВАЖНО: снова делаем изменяемый список, так как Arrays.asList - неизменяемый!
-    donorList = new ArrayList<>(Arrays.asList(donorFiller));
-} else if (donorList.size() != profilesAmount) {
-    throw UserInputException.noStackTrace(
-        "DONOR_DNS values amount must be equal to CLIENT_ID values amount or contain exactly one provider"
-    );
-}
+        donorList.replaceAll(val -> "-".equals(val) ? null : val);
+        if (donorList.size() == 1) {
+            String[] donorFiller = new String[profilesAmount];
+            Arrays.fill(donorFiller, donorList.getFirst());
+            donorList = Arrays.asList(donorFiller);
+        } else if (!donorList.isEmpty() && donorList.size() != profilesAmount) {
+            throw UserInputException.noStackTrace("DONOR_DNS values amount must be equal to CLIENT_ID values amount or contain exactly one provider");
+        }
         ArrayList<DnsProfile> dnsProfiles = new ArrayList<>();
         for (int i = 0; i < profilesAmount; i++) {
             DnsProfile dnsProfile = DnsProfile.builder()
@@ -73,3 +62,4 @@ if (donorList.size() == 1) {
     }
 
 }
+
