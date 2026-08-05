@@ -10,10 +10,8 @@
     <name>dns-block-and-redirect-configurer</name>
 
     <properties>
-        <!-- ВАЖНО: GitHub Actions не поддерживает Java 25. Ставим стабильную LTS версию 21 -->
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
         <spring-context.version>7.0.2</spring-context.version>
         <lombok.version>1.18.42</lombok.version>
         <gson.version>2.10.1</gson.version>
@@ -22,7 +20,6 @@
     </properties>
 
     <dependencies>
-        <!-- Зависимость dnsjava для работы с DNS -->
         <dependency>
             <groupId>dnsjava</groupId>
             <artifactId>dnsjava</artifactId>
@@ -51,14 +48,12 @@
 
     <build>
         <plugins>
-            <!-- Компилятор -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
-                    <!-- Убрали --enable-preview, так как в Java 21 эти фичи стабильны -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -69,7 +64,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Shade Plugin для создания единого JAR файла -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -82,10 +76,7 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <!-- КРИТИЧЕСКИ ВАЖНО: Объединяет файлы сервисов, чтобы dnsjava не потерялся при сборке -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                
-                                <!-- Указывает главный класс для запуска приложения -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.novibe.App</mainClass>
                                 </transformer>
