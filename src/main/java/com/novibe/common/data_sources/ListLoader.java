@@ -3,7 +3,6 @@ package com.novibe.common.data_sources;
 import com.novibe.common.base_structures.HostsLine;
 import com.novibe.common.util.DataParser;
 import com.novibe.common.util.Log;
-import lombok.Cleanup;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,48 +33,37 @@ public abstract class ListLoader<T> {
     @SneakyThrows
     @SuppressWarnings("preview")
     public List<T> fetchWebsites(List<String> urls) {
-   
-try (var scope = StructuredTaskScope.newConcurrent()) {
-    List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
-    
-    urls.stream()
-        .map(url -> scope.fork(() -> fetchList(url)))
-        .forEach(requests::add);
-    
-    scope.join();
-    
-    if (scope.failed()) {
-        throw scope.exception();
-    }
-    
-    return requests.stream()
-        .map(StructuredTaskScope.Subtask::get)
+        try (var scope = StructuredTaskScope.newConcurrent()) {
+            List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
+
+            urls.stream()
+                .map(url -> scope.fork(() -> fetchList(url)))
+                .forEach(requests::add);
+
+            scope.join();
+
+            if (scope.failed()) {
+                throw scope.exception();
+            }
+
+            return requests.stream()
+                .map(StructuredTaskScope.Subtask::get)
+                .flatMap(DataParser::splitByEol)
+                .map(String::strip)
+                .parallel()
+                .filter(line -> !line.isBlank())
+                .filter(line -> !DataParser.isComment(line))
+                .map(String::toLowerCase)
+                .map(DataParser::parseHostsLine)
+                .filter(Objects::nonNull)
+                .filter(filterRelatedLines())
+                .distinct()
+                .map(this::toObject)
+                .collect(Collectors.toCollection(ArrayList::new));
         }
-        
-        return requests.stream()
-            .map(StructuredTaskScope.Subtask::get)
-            .flatMap(DataParser::splitByEol)
-            .map(String::strip)
-            .parallel()
-            .filter(line -> !line.isBlank())
-            .filter(line -> !DataParser.isComment(line))
-            .map(String::toLowerCase)
-            .map(DataParser::parseHostsLine)
-            .filter(Objects::nonNull)
-            .filter(filterRelatedLines())
-            .distinct()
-            .map(this::toObject)
-            .collect(Collectors.toCollection(ArrayList::new));
     }
-}
 
     @SneakyThrows
     private String fetchList(String url) {
         Log.io("Loading %s list from url: %s".formatted(listType(), url));
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-                .GET()
-                .build();
-        return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
-    }
-
-}
+        HttpRequest request = HttpReq
