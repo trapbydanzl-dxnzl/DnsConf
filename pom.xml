@@ -10,12 +10,12 @@
     <name>dns-block-and-redirect-configurer</name>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-context.version>7.0.2</spring-context.version>
         <lombok.version>1.18.42</lombok.version>
         <gson.version>2.10.1</gson.version>
-        <dnsjava.version>3.6.5</dnsjava.version>
+        <dnsjava.version>3.6.0</dnsjava.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
     </properties>
     <dependencies>
