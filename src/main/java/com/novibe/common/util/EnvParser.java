@@ -39,7 +39,6 @@ public class EnvParser {
             throw UserInputException.noStackTrace("DNS values amount must be equal to CLIENT_ID values amount or contain exactly one provider");
         }
 
-        donorList = new ArrayList<>(donorList);
         donorList.replaceAll(val -> "-".equals(val) ? null : val);
         if (donorList.size() == 1) {
             String[] donorFiller = new String[profilesAmount];
