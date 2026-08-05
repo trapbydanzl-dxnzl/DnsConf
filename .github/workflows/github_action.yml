@@ -14,11 +14,11 @@ jobs:
       DNS: ${{ vars.DNS }}
       BLOCK: ${{ vars.BLOCK }}
       REDIRECT: ${{ vars.REDIRECT }}
-      DONOR_DNS: "-"
       EXCLUDE_REDIRECT: ${{ vars.EXCLUDE_REDIRECT }}
 
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      DONOR_DNS: "-"
 
       TZ: Europe/Moscow
 
