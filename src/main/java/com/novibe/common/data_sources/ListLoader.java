@@ -34,12 +34,7 @@ public abstract class ListLoader<T> {
     @SneakyThrows
     @SuppressWarnings("preview")
     public List<T> fetchWebsites(List<String> urls) {
-        @Cleanup try (var scope = StructuredTaskScope.newConcurrent()) {
-    scope.fork(() -> fetchA());
-    scope.fork(() -> fetchB());
-    scope.join();
-    if (scope.failed()) throw scope.exception();
-}
+        @Cleanup var scope = StructuredTaskScope.open();
         List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
         urls.stream()
                 .map(url -> scope.fork(() -> fetchList(url)))
