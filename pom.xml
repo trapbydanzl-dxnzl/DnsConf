@@ -23,7 +23,7 @@
     <dependency>
         <groupId>dnsjava</groupId>
         <artifactId>dnsjava</artifactId>
-        <version>3.6.5</version>
+        <version>${dnsjava.version}</version>
     </dependency>
 
     <dependency>
@@ -38,6 +38,7 @@
         <version>${lombok.version}</version>
         <scope>provided</scope>
     </dependency>
+    
     <dependency>
         <groupId>com.google.code.gson</groupId>
         <artifactId>gson</artifactId>
