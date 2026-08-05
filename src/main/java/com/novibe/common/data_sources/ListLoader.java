@@ -33,6 +33,7 @@ public abstract class ListLoader<T> {
     @SneakyThrows
     @SuppressWarnings("preview")
     public List<T> fetchWebsites(List<String> urls) {
+        // Используем try-with-resources для корректного закрытия StructuredTaskScope
         try (var scope = StructuredTaskScope.newConcurrent()) {
             List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
 
@@ -50,6 +51,8 @@ public abstract class ListLoader<T> {
                 .map(StructuredTaskScope.Subtask::get)
                 .flatMap(DataParser::splitByEol)
                 .map(String::strip)
+                // .parallel() можно оставить, но внутри StructuredTaskScope задачи уже параллельны.
+                // Если возникнут проблемы с потоками — лучше убрать.
                 .parallel()
                 .filter(line -> !line.isBlank())
                 .filter(line -> !DataParser.isComment(line))
@@ -66,4 +69,12 @@ public abstract class ListLoader<T> {
     @SneakyThrows
     private String fetchList(String url) {
         Log.io("Loading %s list from url: %s".formatted(listType(), url));
-        HttpRequest request = HttpReq
+        
+        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                .GET()
+                .build();
+        
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        return response.body();
+    }
+}
