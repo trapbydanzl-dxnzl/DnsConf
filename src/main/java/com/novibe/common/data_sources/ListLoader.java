@@ -34,17 +34,22 @@ public abstract class ListLoader<T> {
     @SneakyThrows
     @SuppressWarnings("preview")
     public List<T> fetchWebsites(List<String> urls) {
-    try (var scope = StructuredTaskScope.newConcurrent()) {
-        List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
-        
-        urls.stream()
-            .map(url -> scope.fork(() -> fetchList(url)))
-            .forEach(requests::add);
-        
-        scope.join();
-        
-        if (scope.failed()) {
-            throw scope.exception();
+   
+try (var scope = StructuredTaskScope.newConcurrent()) {
+    List<StructuredTaskScope.Subtask<String>> requests = new ArrayList<>();
+    
+    urls.stream()
+        .map(url -> scope.fork(() -> fetchList(url)))
+        .forEach(requests::add);
+    
+    scope.join();
+    
+    if (scope.failed()) {
+        throw scope.exception();
+    }
+    
+    return requests.stream()
+        .map(StructuredTaskScope.Subtask::get)
         }
         
         return requests.stream()
